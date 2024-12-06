@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
+const MongoDBInstance = require('./dbs/mongo')
 require('dotenv').config();
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.urlencoded({
 app.use('/', require('./routes/index'))
 
 // init database
+MongoDBInstance;
 
 // checkOverloads()
 
