@@ -13,7 +13,7 @@ class MongoDB {
       .connect(process.env.MONGO_CONNECTION_STR)
       .then((_) => console.log(`Connected to MongoDB`))
       .catch((error) =>
-        console.log(`Failed to connect to MongoDB`)
+        console.log(`Failed to connect to MongoDB with error: ${error}`)
       );
   }
 

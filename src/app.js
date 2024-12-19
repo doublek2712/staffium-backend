@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const MongoDBInstance = require('./dbs/mongo')
 require('dotenv').config();
+const mongoose = require('mongoose');
 
 const app = express();
 
