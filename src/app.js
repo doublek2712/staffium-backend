@@ -2,7 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
-const MongoDBInstance = require('./dbs/mongo')
+const MongoDBInstance = require('./configs/mongo')
 require('dotenv').config();
 const mongoose = require('mongoose');
 
