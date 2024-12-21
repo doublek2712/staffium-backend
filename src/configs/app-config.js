@@ -3,11 +3,11 @@ require('dotenv').config();
 
 const config = {
   development: {
-    port: process.env.APP_PORT_DEV || 8083,
+    port: process.env.APP_PORT_DEV || 8000,
   },
 
   production: {
-    port: process.env.APP_PORT_PROD || 8080,
+    port: process.env.APP_PORT_PROD || 8000,
   }
 }
 

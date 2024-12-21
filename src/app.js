@@ -5,7 +5,8 @@ const compression = require('compression');
 const MongoDBInstance = require('./configs/mongo')
 require('dotenv').config();
 const mongoose = require('mongoose');
-const passport = require('./configs/passport-config')
+const passport = require('passport')
+const session = require('express-session')
 
 const app = express();
 
@@ -17,7 +18,16 @@ app.use(express.json())
 app.use(express.urlencoded({
   extended: true
 }))
+
+
+app.use(session({
+  secret: "secret",
+  resave: false,
+  saveUninitialized: false,
+  // cookie: { secure: true }
+}))
 app.use(passport.initialize());
+app.use(passport.session());
 
 // init routes
 app.use('/', require('./routes/index'))
