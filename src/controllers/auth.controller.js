@@ -1,26 +1,35 @@
 'use strict';
 
-var User = require('../models/schemas/user.model')
+var User = require('../models/user.model')
 const { Error, Success } = require('../common/responses/index.js')
 var passport = require('passport')
 var authenticate = require('../auth/authenticate')
+const CreateUserDTO = require('../common/requests/user.req.js')
+const CreateOrgDTO = require('../common/requests/org.req.js')
+const UserService = require('../services/user.service.js')
+const OrganizationService = require('../services/organization.service.js')
+const StaffService = require('../services/staff.service.js')
 
 const AuthController = {
   signUp: async (req, res, next) => {
-    User.register(new User({ username: req.body.username }),
-      req.body.password, (err, user) => {
-        if (err) {
-          Error.InternalServerErrorResponse(res)
-        }
-        else {
-          // Use passport to authenticate User
-          passport.authenticate('local')(req, res, () => {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json({ success: true, status: 'Registration Successful!' });
-          });
-        }
-      });
+    const createUserDTO = new CreateUserDTO({
+      username: req.body.username,
+      password: req.body.password,
+      roles: req.body.roles
+    })
+    UserService.createAnUser(createUserDTO, req, res, async (err, user) => {
+      if (err) {
+        Error.InternalServerErrorResponse(res, err)
+      }
+      const staff = await StaffService.createAnEmptyStaff()
+      if (staff) {
+        Success.OkResponse(res, 'Registration successfull')
+      } else {
+        Error.InternalServerErrorResponse(res, 'staff fail')
+      }
+
+    })
+
   },
 
   signIn: async (req, res, next) => {
@@ -37,17 +46,11 @@ const AuthController = {
           return next(loginErr);
         }
 
-        const token = authenticate.getToken({ _id: user._id });
+        const token = authenticate.getAccessToken({ _id: user._id });
 
-        return res.status(200).json({
-          success: true,
-          message: 'Login successful',
-          token: token,
-          user: {
-            id: user._id,
-            username: user.username,
-          },
-        });
+        return Success.OkResponse(res, 'Login successful', {
+          access_token: token,
+        })
       });
     })(req, res, next);
   },
@@ -67,13 +70,11 @@ const AuthController = {
   logout: async (req, res, next) => {
     try {
       if (req.user) {
-        // Cập nhật lastLogout bằng thời gian hiện tại
         await User.findByIdAndUpdate(req.user._id, { lastLogout: Date.now() });
-        res.status(200).json({ message: 'Logout successful' });
+        Success.OkResponse(res, 'Logout successful')
       }
       else
-        res.status(404).json({ message: 'not found' });
-
+        Error.NotFoundResponse(res)
     } catch (err) {
       next(err);
     }

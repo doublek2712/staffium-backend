@@ -3,7 +3,7 @@ require('dotenv').config();
 const { Error, Success } = require('../common/responses/index.js')
 
 // User model
-var User = require('../models/schemas/user.model.js');
+var User = require('../models/user.model.js');
 
 // Strategies
 var JwtStrategy = require('passport-jwt').Strategy
@@ -20,10 +20,15 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-exports.getToken = function (user) {
-  // This helps us to create the JSON Web Token
-  return jwt.sign(user, process.env.API_SECRET_KEY, { expiresIn: 60 * 60 });
+exports.getAccessToken = (user) => {
+  return jwt.sign(user, process.env.API_SECRET_KEY || 'my_secret', { expiresIn: 60 * 60 });
 };
+exports.getOrgToken = (org) => {
+  return jwt.sign(org, process.env.API_SECRET_KEY || 'my_secret', { expiresIn: 60 * 60 });
+}
+exports.decodeOrgToken = (token) => {
+  return jwt.verify(token, process.env.API_SECRET_KEY || 'my_secret')
+}
 
 // Options to specify for my JWT based strategy.
 var opts = {};
@@ -66,8 +71,15 @@ exports.verifyUser = (req, res, next) => {
     if (!user) {
       return Error.UnauthorizedResponse(res, 'You are not authorized. Invalid token or user.')
     }
-
     req.user = user;
     return next();
   })(req, res, next);
 };
+exports.requireRole = (role) => (req, res, next) => {
+  // IMPORTANT: always use after verifyUser
+  // assume that verifyUser is done
+  if (req.user && req.user.roles.includes(role)) {
+    return next()
+  }
+  Error.ForbiddenResponse(res, 'You do not have permission to perform this action.')
+}
