@@ -16,10 +16,6 @@ var Request = new Schema({
     ref: MODELS_NAME.STAFF,
     required: true
   },
-  day: {
-    type: Date,
-    default: Date.now
-  },
   status: {
     type: String,
     required: true,

@@ -33,6 +33,11 @@ var DayAttendance = new Schema({
   check_out: {
     type: Date,
     default: null
+  },
+  off_request: {
+    type: Schema.Types.ObjectId,
+    ref: MODELS_NAME.REQUEST,
+    required: false
   }
 })
 

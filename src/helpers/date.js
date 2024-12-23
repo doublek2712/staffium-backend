@@ -13,14 +13,14 @@ const endOfDay = (targetDate) => {
 }
 
 const startOfMonth = (month, year) => {
-  var res = new Date(year, month - 1, 1)
+  var res = new Date(year, month, 1)
   res.setHours(0, 0, 0, 0)
   res = new Date(res.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
   return res
 }
 
 const startOfNextMonth = (month, year) => {
-  var res = new Date(year, month, 1)
+  var res = new Date(year, month + 1, 1)
   res.setHours(0, 0, 0, 0)
   res = new Date(res.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
   return res

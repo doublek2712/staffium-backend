@@ -8,6 +8,7 @@ const OrganizationConfigService = require('../services/organization-config.servi
 const { appTimeFormatter, compareTime } = require('../helpers/time.js')
 const AttendanceTypes = require('../common/enums/attendance-type.js');
 const { StatusCodes } = require('../utils/httpStatusCode.js');
+const OffTypes = require('../common/enums/off-type.js');
 
 const { buildFilter, buildSort } = require('../helpers/query-params.builder.js')
 
@@ -24,7 +25,20 @@ const DayAttendanceService = {
       throw new Error.ThrowableError({ status: err.status, msg: err.message })
     }
   },
-
+  createAttendanceByRequest: async (user, request) => {
+    try {
+      const attendance = await DayAttendance.create({
+        organization_id: user.organization_id,
+        staff_id: user.staff_id,
+        type: AttendanceTypes.OFF_AUTHORIZED,
+        off_request: request._id
+      })
+      return attendance
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
 
   getAllAttendanceByTime: async (user, time, query) => {
     try {

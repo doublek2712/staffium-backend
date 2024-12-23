@@ -10,5 +10,6 @@ router.use('/api/staff', require('./staff.route'))
 router.use('/api/dept', require('./department.route'))
 router.use('/api/position', require('./position.route'))
 router.use('/api/attendance', require('./attendance.route'))
+router.use('/api/request', require('./request.route'))
 
 module.exports = router;
