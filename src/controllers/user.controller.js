@@ -2,30 +2,26 @@
 
 const { Error, Success } = require('../common/responses/index.js')
 const UserService = require('../services/user.service.js')
-const Invitation = require('../models/invitation.model.js')
-const User = require('../models/user.model.js');
-const { authenticate } = require('passport');
+const InvitationService = require('../services/invitation.service.js')
+const StaffService = require('../services/staff.service.js')
 
 const UserController = {
   joinOrganization: async (req, res, next) => {
-    if (req.user && req.params.code) {
-      if (req.user.organization_id) {
-        return Error.ConflictResponse(res, 'You already in an organization.')
-      }
-
-      const invitation = await Invitation.findByCode(req.params.code)
-      if (!invitation) {
-        return Error.InternalServerErrorResponse(res)
-      }
-      const updateUser = UserService.joinAnOrganization(req.user, invitation.createdBy.organization_id, res)
-      if (updateUser) {
-        return Success.OkResponse(res, `Join organization successfully`)
-      } else {
-        return Error.InternalServerErrorResponse(res)
-      }
-    } else {
-      return Error.BadRequestResponse(res)
+    if (req.user.organization_id) {
+      return Error.ConflictResponse(res, 'You already in an organization.')
     }
+    try {
+      const invitation = await InvitationService.getInvitationByCode(req.params.code)
+
+      const staff = await StaffService.getOneStaffById(req.user.staff_id)
+      await UserService.joinAnOrganization(req.user, invitation.createdBy.organization_id)
+      await StaffService.updateOrganization(staff, invitation.createdBy.organization_id)
+      return Success.OkResponse(res, `Join organization successfully`)
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
+
   },
 
   getMe: async (req, res, next) => {

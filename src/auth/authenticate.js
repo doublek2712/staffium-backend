@@ -83,3 +83,21 @@ exports.requireRole = (role) => (req, res, next) => {
   }
   Error.ForbiddenResponse(res, 'You do not have permission to perform this action.')
 }
+exports.verifyTenantMatch = (getSesourceFn) => async (req, res, next) => {
+  // use to verify user have permission on a specific resource 
+  const resource = await getSesourceFn(req, res, next)
+
+  if (req.user && resource) {
+    if (req.user.organization_id.equals(resource.organization_id)) {
+      return next()
+    }
+    else {
+      return Error.ForbiddenResponse(res, 'You do not have permission to perform this action.')
+    }
+  }
+  else {
+    return Error.NotFoundResponse(res)
+  }
+
+
+}

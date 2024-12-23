@@ -21,6 +21,42 @@ const RequestTimeoutResponse = (res, msg) => ResponseBuilder(res, msg, StatusCod
 const ConflictResponse = (res, msg) => ResponseBuilder(res, msg, StatusCodes.CONFLICT, ReasonPhrases.CONFLICT)
 const InternalServerErrorResponse = (res, msg) => ResponseBuilder(res, msg, StatusCodes.INTERNAL_SERVER_ERROR, ReasonPhrases.INTERNAL_SERVER_ERROR)
 
+class ThrowableError extends Error {
+  constructor({ status, msg }) {
+    super(msg)
+    this.status = status
+  }
+}
+
+const ThrowErrorHandler = (res, statusCode, msg) => {
+  switch (statusCode) {
+    case StatusCodes.BAD_REQUEST: {
+      return BadRequestResponse(res, msg)
+    }
+    case StatusCodes.UNAUTHORIZED: {
+      return UnauthorizedResponse(res, msg)
+    }
+    case StatusCodes.NOT_FOUND: {
+      return NotFoundResponse(res, msg)
+    }
+    case StatusCodes.FORBIDDEN: {
+      return ForbiddenResponse(res, msg)
+    }
+    case StatusCodes.REQUEST_TIMEOUT: {
+      return RequestTimeoutResponse(res, msg)
+    }
+    case StatusCodes.CONFLICT: {
+      return ConflictResponse(res, msg)
+    }
+    case StatusCodes.INTERNAL_SERVER_ERROR: {
+      return InternalServerErrorResponse(res, msg)
+    }
+    default: {
+      return InternalServerErrorResponse(res, msg)
+    }
+  }
+}
+
 module.exports = {
   BadRequestResponse,
   UnauthorizedResponse,
@@ -28,5 +64,7 @@ module.exports = {
   ForbiddenResponse,
   RequestTimeoutResponse,
   ConflictResponse,
-  InternalServerErrorResponse
+  InternalServerErrorResponse,
+  ThrowableError,
+  ThrowErrorHandler,
 }

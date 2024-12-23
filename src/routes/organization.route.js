@@ -20,5 +20,5 @@ router.post('/',
   asyncHandler(OrganizationController.createOrganization)
 )
 
-// router.post('/invite', asyncHandler(AuthController.getAllUser))
+
 module.exports = router;

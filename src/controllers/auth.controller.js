@@ -19,15 +19,16 @@ const AuthController = {
     })
     UserService.createAnUser(createUserDTO, req, res, async (err, user) => {
       if (err) {
-        Error.InternalServerErrorResponse(res, err)
+        return Error.InternalServerErrorResponse(res, err)
       }
-      const staff = await StaffService.createAnEmptyStaff()
-      if (staff) {
-        Success.OkResponse(res, 'Registration successfull')
-      } else {
-        Error.InternalServerErrorResponse(res, 'staff fail')
+      try {
+        const staff = await StaffService.createAnEmptyStaff()
+        await User.setStaffId(user, staff)
+        return Success.OkResponse(res, 'Registration successfull')
       }
-
+      catch (error) {
+        return Error.ThrowErrorHandler(res, error.status, error.message)
+      }
     })
 
   },

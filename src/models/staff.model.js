@@ -6,6 +6,11 @@ const Schema = mongoose.Schema
 const MODELS_NAME = require('./_models-name');
 
 var Staff = new Schema({
+  organization_id: {
+    type: Schema.Types.ObjectId,
+    ref: MODELS_NAME.ORGANIZATION,
+    default: null
+  },
   first_name: {
     type: String,
     default: ''
@@ -52,7 +57,7 @@ var Staff = new Schema({
   },
   contract_end_date: {
     type: Date,
-    default: null
+    default: null,
   },
   contract: {
     type: Schema.Types.ObjectId,
@@ -62,15 +67,35 @@ var Staff = new Schema({
   department: {
     type: Schema.Types.ObjectId,
     ref: MODELS_NAME.DEPT,
-    default: null
+    required: false
   },
   position: {
     type: Schema.Types.ObjectId,
     ref: MODELS_NAME.POS,
-    default: null
+    required: false
   }
 }, {
   timestamps: true
 })
+
+Staff.statics.getOneById = async (id) => {
+  return await mongoose.model(MODELS_NAME.STAFF)
+    .findById(id)
+    .populate(['contract', 'department', 'position'])
+}
+Staff.statics.setOrganization = async (staff, org_id) => {
+  return await mongoose.model(MODELS_NAME.STAFF).findByIdAndUpdate(staff._id, {
+    $set: {
+      organization_id: org_id
+    }
+  })
+}
+Staff.statics.setOneById = async (id, updateData) => {
+  return await mongoose.model(MODELS_NAME.STAFF).findByIdAndUpdate(
+    id,
+    { $set: updateData },
+    { new: true })
+}
+
 
 module.exports = mongoose.model(MODELS_NAME.STAFF, Staff);

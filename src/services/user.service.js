@@ -1,13 +1,20 @@
 
 var User = require('../models/user.model')
-var Organization = require('../models/organization.model.js')
 const { Error, Success } = require('../common/responses/index.js')
 var passport = require('passport')
-var authenticate = require('../auth/authenticate')
+const { StatusCodes } = require('../utils/httpStatusCode.js')
 
 const UserService = {
   getUserById: async (id) => {
     return await User.getUserById(id)
+  },
+  getOrganization: async (id) => {
+    const user = await UserService.getUserById(id)
+    if (user) {
+      return user.organization_id
+    } else {
+      throw new Error.ThrowableError({ status: StatusCodes.NOT_FOUND, msg: 'User not found.' })
+    }
   },
   createAnUser: async (createUserDTO, req, res, cb) => {
     User.register(new User({
@@ -25,12 +32,13 @@ const UserService = {
         }
       });
   },
-  joinAnOrganization: async (user, org_id, res) => {
-    const org = await Organization.findById(org_id)
-    if (!org)
-      return Error.InternalServerErrorResponse(res, 'Could not found organization. Please try again.')
-    else
-      return await User.joinAnOrganization(user, org)
+  joinAnOrganization: async (user, org_id) => {
+    const updateUser = await User.joinAnOrganization(user, org_id)
+    if (updateUser) {
+      return updateUser
+    } else {
+      throw new Error.ThrowableError({ status: StatusCodes.NOT_FOUND, msg: 'User not found.' })
+    }
   },
   updateUsername: () => { },
   updatePassword: () => { },

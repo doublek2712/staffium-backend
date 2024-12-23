@@ -6,6 +6,7 @@ const { Error, Success } = require('../common/responses/index.js')
 const CreateOrgDTO = require('../common/requests/org.req.js')
 const OrganizationService = require('../services/organization.service.js')
 const UserService = require('../services/user.service.js')
+const StaffService = require('../services/staff.service.js')
 
 const OrganizationController = {
   getInvitationCode: async (req, res, next) => {
@@ -24,17 +25,16 @@ const OrganizationController = {
     }
   },
   createOrganization: async (req, res, next) => {
-    const newOrg = await OrganizationService.createAnOrganization(new CreateOrgDTO({ name: req.body.name, size: req.body.size }))
-    if (newOrg) {
-      const updateUser = UserService.joinAnOrganization(req.user, newOrg._id)
-      if (updateUser) {
-        return Success.OkResponse(res, `Create org ${newOrg.name} successfully!`)
-      } else {
-        return Error.InternalServerErrorResponse(res)
-      }
+    try {
+      const staff = await StaffService.getOneStaffById(req.user.staff_id)
+      const newOrg = await OrganizationService.createAnOrganization(new CreateOrgDTO({ name: req.body.name, size: req.body.size }))
+
+      await UserService.joinAnOrganization(req.user, newOrg._id)
+      await StaffService.updateOrganization(staff, newOrg._id)
+      return Success.OkResponse(res, `Create org ${newOrg.name} successfully!`)
     }
-    else {
-      return Error.InternalServerErrorResponse(res)
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
     }
   }
 

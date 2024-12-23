@@ -31,17 +31,22 @@ var User = new Schema({
 
 User.plugin(passportLocalMongoose);
 
-User.statics.joinAnOrganization = async (user, org) => {
+User.statics.joinAnOrganization = async (user, org_id) => {
   return await mongoose.model(MODELS_NAME.USER).findByIdAndUpdate(user._id, {
     $set: {
-      organization_id: org._id
+      organization_id: org_id
     }
   })
 }
-
-User.statics.getUserById = async (id) => {
-  return await mongoose.model(MODELS_NAME.USER).findById(id).populate('organization_id')
+User.statics.setStaffId = async (user, staff) => {
+  return await mongoose.model(MODELS_NAME.USER).findByIdAndUpdate(user._id, {
+    $set: {
+      staff_id: staff._id
+    }
+  })
 }
-
+User.statics.getUserById = async (id) => {
+  return await mongoose.model(MODELS_NAME.USER).findById(id).populate('organization_id').lean()
+}
 
 module.exports = mongoose.model(MODELS_NAME.USER, User);
