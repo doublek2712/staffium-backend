@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const passport = require('passport')
 const session = require('express-session')
 
+const initialAttendanceForAll = require('./scheduler/cron')
+
 const app = express();
 
 // init middleware
@@ -34,6 +36,8 @@ app.use('/', require('./routes/index'))
 
 // init database
 MongoDBInstance;
+
+// initialAttendanceForAll.start()
 
 // checkOverloads()
 

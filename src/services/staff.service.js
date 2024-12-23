@@ -39,9 +39,13 @@ const StaffService = {
     }
   },
 
-  getAllStaff: async (user, query) => {
-    const { limit, page, filter, sort } = query
-    throw new Error.ThrowableError({ status: StatusCodes.NOT_FOUND, msg: `${limit}` })
+  getAllStaff: async (org_id) => {
+    try {
+      const staffs = await Staff.find({ organization_id: org_id }).lean()
+      return staffs
+    } catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
   }
 }
 

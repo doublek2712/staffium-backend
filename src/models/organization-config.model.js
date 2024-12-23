@@ -5,6 +5,7 @@ const Schema = mongoose.Schema
 
 const MODELS_NAME = require('./_models-name');
 
+
 var OrganizationConfig = new Schema({
   organization_id: {
     type: Schema.Types.ObjectId,

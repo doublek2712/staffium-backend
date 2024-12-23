@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const MODELS_NAME = require('./_models-name');
+const { buildFilter, buildSort } = require('../helpers/query-params.builder.js')
+const { startOfDay, endOfDay, startOfMonth, startOfNextMonth } = require('../helpers/date.js')
 
 var DayAttendance = new Schema({
   organization_id: {
@@ -18,7 +20,7 @@ var DayAttendance = new Schema({
   },
   day: {
     type: Date,
-    default: Date.now
+    default: new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }))
   },
   type: {
     type: String,
@@ -40,6 +42,65 @@ DayAttendance.statics.setOneById = async (id, updateData) => {
     { $set: updateData },
     { new: true }
   )
+}
+
+DayAttendance.index({ day: 1 });
+DayAttendance.statics.getAllByTimeAndQuery = async (org_id, time, query) => {
+  const { page = 1, limit = 10, sort, filter } = query
+  const queryFilter = buildFilter(filter)
+  const querySort = buildSort(sort) || {
+    check_in: 1
+  }
+
+  return await mongoose.model(MODELS_NAME.DAYATTENDANCE).aggregate([
+    {
+      $lookup: {
+        from: `${MODELS_NAME.STAFF}s`,
+        localField: 'staff_id',
+        foreignField: '_id',
+        as: 'staff'
+      }
+    },
+    {
+      $unwind: '$staff'
+    },
+    {
+      $lookup: {
+        from: `${MODELS_NAME.DEPT}s`,
+        localField: 'staff.department',
+        foreignField: '_id',
+        as: 'staff.department'
+      }
+    },
+    {
+      $lookup: {
+        from: `${MODELS_NAME.POS}s`,
+        localField: 'staff.position',
+        foreignField: '_id',
+        as: 'staff.position'
+      },
+    },
+    {
+      $match: {
+        organization_id: org_id,
+        day: {
+          $gte: startOfDay(time),
+          $lt: endOfDay(time)
+        },
+        ...queryFilter
+      }
+    },
+    {
+      $skip: (Number(page) - 1) * Number(limit)
+    },
+    {
+      $limit: Number(limit)
+    },
+    {
+      $sort: querySort
+    },
+
+  ])
 }
 
 module.exports = mongoose.model(MODELS_NAME.DAYATTENDANCE, DayAttendance);

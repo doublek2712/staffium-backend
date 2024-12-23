@@ -7,6 +7,7 @@ const CreateOrgDTO = require('../common/requests/org.req.js')
 const OrganizationService = require('../services/organization.service.js')
 const UserService = require('../services/user.service.js')
 const StaffService = require('../services/staff.service.js')
+const OrganizationConfigService = require('../services/organization-config.service.js')
 
 const OrganizationController = {
   getInvitationCode: async (req, res, next) => {
@@ -25,10 +26,13 @@ const OrganizationController = {
     }
   },
   createOrganization: async (req, res, next) => {
+    if (req.user.organization_id) {
+      return Error.ConflictResponse(res, 'You already in an organization.')
+    }
     try {
       const staff = await StaffService.getOneStaffById(req.user.staff_id)
       const newOrg = await OrganizationService.createAnOrganization(new CreateOrgDTO({ name: req.body.name, size: req.body.size }))
-
+      await OrganizationConfigService.createOneOrgConfig(newOrg._id)
       await UserService.joinAnOrganization(req.user, newOrg._id)
       await StaffService.updateOrganization(staff, newOrg._id)
       return Success.OkResponse(res, `Create org ${newOrg.name} successfully!`)

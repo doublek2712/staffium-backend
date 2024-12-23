@@ -17,6 +17,17 @@ const OrganizationService = {
     } else {
       throw new Error.ThrowableError({ status: StatusCodes.NOT_FOUND, msg: 'Org not found.' })
     }
+  },
+
+  //this func only for cron task, cannot call by client
+  getAllOrganization: async () => {
+    try {
+      const orgs = await Organization.find()
+      return orgs
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
   }
 }
 
