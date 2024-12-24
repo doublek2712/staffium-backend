@@ -79,7 +79,10 @@ const AuthController = {
     } catch (err) {
       next(err);
     }
-  }
+  },
+
+  //
+
 }
 
 module.exports = AuthController

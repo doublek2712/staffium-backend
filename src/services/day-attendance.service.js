@@ -43,7 +43,6 @@ const DayAttendanceService = {
   getAllAttendanceByTime: async (user, time, query) => {
     try {
       const attendances = await DayAttendance.getAllByTimeAndQuery(user.organization_id, time, query)
-      console.log(attendances)
       return attendances
     } catch (err) {
       throw new Error.ThrowableError({ status: err.status, msg: err.message })
