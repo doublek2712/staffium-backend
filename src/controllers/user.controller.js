@@ -28,6 +28,36 @@ const UserController = {
     const me = await UserService.getUserById(req.user._id)
     if (me)
       return Success.OkResponse(res, 'success', me)
+  },
+
+  getAllUser: async (req, res, next) => {
+    try {
+      const users = UserService.getAllUserByOrg(req.user.organization_id)
+      return Success.OkResponse(res, 'success', users)
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
+  },
+
+  changeUsername: async (req, res, next) => {
+    try {
+      const user = UserService.updateUsernameByUsername(req.user.username, req.body.username)
+      return Success.OkResponse(res, 'success', user)
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
+  },
+
+  changePassword: async (req, res, next) => {
+    try {
+      const user = UserService.updatePasswordByUsername(req.user.username, req.body.oldPassword, req.body.newPassword)
+      return Success.OkResponse(res, 'success', user)
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
   }
 }
 

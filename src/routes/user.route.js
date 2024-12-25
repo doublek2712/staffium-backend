@@ -17,5 +17,10 @@ router.get('/',
   authenticate.verifyUser,
   asyncHandler(UserController.getMe)
 )
+router.get('/all',
+  authenticate.verifyUser,
+  authenticate.requireRole(UserRoles.HR),
+  asyncHandler()
+)
 
 module.exports = router;

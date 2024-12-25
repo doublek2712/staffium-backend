@@ -5,6 +5,15 @@ var passport = require('passport')
 const { StatusCodes } = require('../utils/httpStatusCode.js')
 
 const UserService = {
+  getAllUserByOrg: async (org_id) => {
+    try {
+      const users = await User.find({ organization_id: org_id })
+      return users
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
   getUserById: async (id) => {
     return await User.getUserById(id)
   },
@@ -40,8 +49,30 @@ const UserService = {
       throw new Error.ThrowableError({ status: StatusCodes.NOT_FOUND, msg: 'User not found.' })
     }
   },
-  updateUsername: () => { },
-  updatePassword: () => { },
+  updateUsernameByUsername: async (username, newUsername) => {
+    try {
+      const user = await User.findOneAndUpdate({ username: username }, { $set: { username: newUsername } }, { new: true })
+      return user
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
+  updatePasswordByUsername: async (username, oldPassword, newPassword) => {
+    try {
+      await User.findByUsername(username, (err, user) => {
+        if (err) {
+          throw new Error.ThrowableError({ status: err.status, msg: err.message })
+        }
+        else {
+          user.changePassword(oldPassword, newPassword)
+        }
+      })
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
 
 }
 
