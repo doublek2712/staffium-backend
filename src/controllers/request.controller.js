@@ -3,6 +3,7 @@
 const { Error, Success } = require('../common/responses/index.js');
 const RequestService = require('../services/request.service.js')
 const DayAttendanceService = require('../services/day-attendance.service.js')
+const RequestStatus = require('../common/enums/request-status')
 const RequestController = {
   createRequest: async (req, res, next) => {
     try {
