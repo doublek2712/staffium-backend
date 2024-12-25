@@ -31,12 +31,12 @@ router.get('/all_this_month',
   authenticate.requireRole(UserRoles.HR),
   asyncHandler(RequestController.getAllRequestOfThisMonth)
 )
-router.post('/approve:request_id',
+router.post('/approve/:request_id',
   authenticate.verifyUser,
   authenticate.requireRole(UserRoles.HR),
   asyncHandler(RequestController.updateRequestStatus(RequestStatus.APPROVED))
 )
-router.post('/reject:request_id',
+router.post('/reject/:request_id',
   authenticate.verifyUser,
   authenticate.requireRole(UserRoles.HR),
   asyncHandler(RequestController.updateRequestStatus(RequestStatus.REJECTED))
