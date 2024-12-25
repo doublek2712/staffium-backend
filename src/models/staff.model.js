@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const MODELS_NAME = require('./_models-name');
-
+const { buildFilter, buildSort } = require('../helpers/query-params.builder.js')
+const { Error, Success } = require('../common/responses/index.js')
 var Staff = new Schema({
   organization_id: {
     type: Schema.Types.ObjectId,
@@ -95,6 +96,64 @@ Staff.statics.setOneById = async (id, updateData) => {
     id,
     { $set: updateData },
     { new: true })
+}
+Staff.statics.getAllByQuery = async (org_id, query) => {
+  const { page = 1, limit = 10, sort, filter } = query
+  const queryFilter = buildFilter(filter)
+  const querySort = buildSort(sort) || {
+    name: 1
+  }
+
+  try {
+    const aggregate = await mongoose.model(MODELS_NAME.STAFF).aggregate([
+      {
+        $lookup: {
+          from: `${MODELS_NAME.DEPT}s`,
+          localField: 'department',
+          foreignField: '_id',
+          as: 'department'
+        }
+      },
+      {
+        $unwind: {
+          path: '$department', preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: `${MODELS_NAME.POS}s`,
+          localField: 'position',
+          foreignField: '_id',
+          as: 'position'
+        }
+      },
+      {
+        $unwind: {
+          path: '$position', preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          organization_id: org_id,
+          ...queryFilter
+        }
+      },
+      { $skip: (Number(page) - 1) * Number(limit) },
+      { $limit: Number(limit) },
+      { $sort: querySort },
+    ])
+    const count = await mongoose.model(MODELS_NAME.STAFF).countDocuments({ organization_id: org_id, ...queryFilter })
+
+    return {
+      totalPage: Math.ceil(count / limit),
+      page: Number(page),
+      totalItem: aggregate.length,
+      items: aggregate
+    }
+  }
+  catch (err) {
+    throw new Error.ThrowableError({ status: err.status, msg: err.message })
+  }
 }
 
 

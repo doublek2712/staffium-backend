@@ -9,7 +9,7 @@ const StaffController = {
   getMyRecord: async (req, res, next) => {
     try {
       const staff = await StaffService.getOneStaffById(req.user.staff_id)
-      return Success.OkResponse(res, 'Successful', staff)
+      return Success.OkResponse(res, 'DM', staff)
     }
     catch (error) {
       return Error.ThrowErrorHandler(res, error.status, error.message)
@@ -29,8 +29,8 @@ const StaffController = {
   // for HR 
   getAllStaff: async (req, res, next) => {
     try {
-      const staff = await StaffService.getAllStaff(req.user, req.query)
-      return Success.OkResponse(res, 'Successful', staff)
+      const staffList = await StaffService.getAllStaff(req.user.organization_id, req.query)
+      return Success.OkResponse(res, 'DM', staffList)
     }
     catch (error) {
       return Error.ThrowErrorHandler(res, error.status, error.message)

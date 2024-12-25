@@ -39,9 +39,9 @@ const StaffService = {
     }
   },
 
-  getAllStaff: async (org_id) => {
+  getAllStaff: async (org_id, query) => {
     try {
-      const staffs = await Staff.find({ organization_id: org_id }).lean()
+      const staffs = await Staff.getAllByQuery(org_id, query)
       return staffs
     } catch (err) {
       throw new Error.ThrowableError({ status: err.status, msg: err.message })
