@@ -104,6 +104,31 @@ Staff.statics.getAllByQuery = async (org_id, query) => {
     name: 1
   }
 
+  var finalFilter = queryFilter
+
+  if (finalFilter.name !== undefined) {
+    const regex = queryFilter.name
+    var { name, ...finalFilter } = queryFilter
+    finalFilter = {
+      ...finalFilter,
+      $or: [
+        { first_name: regex },
+        { last_name: regex }
+      ]
+    }
+  }
+  var countFilter = finalFilter
+
+  if (finalFilter['department._id'] !== undefined) {
+    const id = finalFilter['department._id']
+    finalFilter['department._id'] = new mongoose.Types.ObjectId(id)
+    var { 'department._id': deptId, ...countFilter } = countFilter
+    countFilter = {
+      ...countFilter,
+      'department': new mongoose.Types.ObjectId(id)
+    }
+  }
+
   try {
     const aggregate = await mongoose.model(MODELS_NAME.STAFF).aggregate([
       {
@@ -135,14 +160,14 @@ Staff.statics.getAllByQuery = async (org_id, query) => {
       {
         $match: {
           organization_id: org_id,
-          ...queryFilter
+          ...finalFilter
         }
       },
       { $skip: (Number(page) - 1) * Number(limit) },
       { $limit: Number(limit) },
       { $sort: querySort },
     ])
-    const count = await mongoose.model(MODELS_NAME.STAFF).countDocuments({ organization_id: org_id, ...queryFilter })
+    const count = await mongoose.model(MODELS_NAME.STAFF).countDocuments({ organization_id: org_id, ...countFilter })
 
     return {
       totalPage: Math.ceil(count / limit),
