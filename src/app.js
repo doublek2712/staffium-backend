@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
+const cors = require('cors')
 const MongoDBInstance = require('./configs/mongo')
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -13,6 +14,7 @@ const initialAttendanceForAll = require('./scheduler/cron')
 const app = express();
 
 // init middleware
+app.use(cors())
 app.use(morgan("dev"))
 app.use(helmet())
 app.use(compression())

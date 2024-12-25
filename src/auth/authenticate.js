@@ -20,8 +20,10 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+const accessTokenExpiresTime = 60 * 60 * 24
+
 exports.getAccessToken = (user) => {
-  return jwt.sign(user, process.env.API_SECRET_KEY || 'my_secret', { expiresIn: 60 * 60 });
+  return jwt.sign(user, process.env.API_SECRET_KEY || 'my_secret', { expiresIn: accessTokenExpiresTime });
 };
 exports.getOrgToken = (org) => {
   return jwt.sign(org, process.env.API_SECRET_KEY || 'my_secret', { expiresIn: 60 * 60 });
