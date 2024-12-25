@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const MODELS_NAME = require('./_models-name');
+const { Error } = require('../common/responses/index.js')
 const { buildFilter, buildSort } = require('../helpers/query-params.builder.js')
 const { startOfDay, endOfDay, startOfMonth, startOfNextMonth } = require('../helpers/date.js')
 
@@ -183,10 +184,9 @@ DayAttendance.statics.getAllByTimeAndQuery = async (org_id, time, query) => {
         $count: "totalDocument"
       }
     ])
-    console.log(count)
 
     return {
-      totalPage: Math.ceil(count[0].totalDocument / limit),
+      totalPage: count && Math.ceil(count[0]?.totalDocument / limit),
       page: Number(page),
       totalItem: aggregate.length,
       items: aggregate
