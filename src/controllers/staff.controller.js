@@ -30,23 +30,47 @@ const StaffController = {
   getAllStaff: async (req, res, next) => {
     try {
       const staffList = await StaffService.getAllStaff(req.user.organization_id, req.query)
-      return Success.OkResponse(res, 'DM', staffList)
+      return Success.OkResponse(res, 'Successful', staffList)
     }
     catch (error) {
       return Error.ThrowErrorHandler(res, error.status, error.message)
     }
   },
   getOneStaff: async (req, res, next) => {
-
+    try {
+      const staff = await StaffService.getOneStaffById(req.params.staff_id)
+      return Success.OkResponse(res, 'Successful', staff)
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
   },
   updateOneStaff: async (req, res, next) => {
-
-  },
-  deleteStaffs: async (req, res, next) => {
-
+    try {
+      const staff = await StaffService.updateOneStaffById(req.params.staff_id, req.body)
+      return Success.OkResponse(res, 'Successful', staff)
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
   },
   deleteStaff: async (req, res, next) => {
-
+    try {
+      await StaffService.deleteStaffById(req.params.staff_id)
+      return Success.OkResponse(res, 'Successful')
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
+  },
+  deleteStaffs: async (req, res, next) => {
+    try {
+      await StaffService.deleteManyStaff(req.query)
+      return Success.OkResponse(res, 'Successful')
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
   },
 
 }

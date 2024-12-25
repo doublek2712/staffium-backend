@@ -57,55 +57,145 @@ DayAttendance.statics.getAllByTimeAndQuery = async (org_id, time, query) => {
     check_in: 1
   }
 
-  return await mongoose.model(MODELS_NAME.DAYATTENDANCE).aggregate([
-    {
-      $lookup: {
-        from: `${MODELS_NAME.STAFF}s`,
-        localField: 'staff_id',
-        foreignField: '_id',
-        as: 'staff'
-      }
-    },
-    {
-      $unwind: '$staff'
-    },
-    {
-      $lookup: {
-        from: `${MODELS_NAME.DEPT}s`,
-        localField: 'staff.department',
-        foreignField: '_id',
-        as: 'staff.department'
-      }
-    },
-    {
-      $lookup: {
-        from: `${MODELS_NAME.POS}s`,
-        localField: 'staff.position',
-        foreignField: '_id',
-        as: 'staff.position'
-      },
-    },
-    {
-      $match: {
-        organization_id: org_id,
-        day: {
-          $gte: startOfDay(time),
-          $lt: endOfDay(time)
-        },
-        ...queryFilter
-      }
-    },
-    {
-      $skip: (Number(page) - 1) * Number(limit)
-    },
-    {
-      $limit: Number(limit)
-    },
-    {
-      $sort: querySort
-    },
+  var finalFilter = queryFilter
 
-  ])
+  if (finalFilter.name !== undefined) {
+    const regex = queryFilter.name
+    var { name, ...finalFilter } = queryFilter
+    finalFilter = {
+      ...finalFilter,
+      $or: [
+        { 'staff.first_name': regex },
+        { 'staff.last_name': regex }
+      ]
+    }
+  }
+  var countFilter = finalFilter
+
+  if (finalFilter['department._id'] !== undefined) {
+    const id = finalFilter['department._id']
+    var { 'department._id': deptId, ...finalFilter } = finalFilter
+    finalFilter = {
+      ...finalFilter,
+      'staff.department._id': new mongoose.Types.ObjectId(id)
+    }
+    var { 'department._id': deptId, ...countFilter } = countFilter
+    countFilter = {
+      ...countFilter,
+      'staff.department': new mongoose.Types.ObjectId(id)
+    }
+  }
+
+  if (finalFilter.gender !== undefined) {
+    const tmp = finalFilter.gender
+    var { gender, ...finalFilter } = finalFilter
+    finalFilter = {
+      ...finalFilter,
+      'staff.gender': tmp
+    }
+    var { gender, ...countFilter } = countFilter
+    countFilter = {
+      ...countFilter,
+      'staff.gender': tmp
+    }
+  }
+
+  try {
+    const aggregate = await mongoose.model(MODELS_NAME.DAYATTENDANCE).aggregate([
+      {
+        $lookup: {
+          from: `${MODELS_NAME.STAFF}s`,
+          localField: 'staff_id',
+          foreignField: '_id',
+          as: 'staff'
+        }
+      },
+      {
+        $unwind: {
+          path: '$staff', preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: `${MODELS_NAME.DEPT}s`,
+          localField: 'staff.department',
+          foreignField: '_id',
+          as: 'staff.department'
+        }
+      },
+      {
+        $unwind: {
+          path: '$staff.department', preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: `${MODELS_NAME.POS}s`,
+          localField: 'staff.position',
+          foreignField: '_id',
+          as: 'staff.position'
+        },
+      },
+      {
+        $unwind: {
+          path: '$staff.position', preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          organization_id: org_id,
+          day: {
+            $gte: startOfDay(time),
+            $lt: endOfDay(time)
+          },
+          ...finalFilter
+        }
+      },
+      { $skip: (Number(page) - 1) * Number(limit) },
+      { $limit: Number(limit) },
+      { $sort: querySort },
+    ])
+    const count = await mongoose.model(MODELS_NAME.DAYATTENDANCE).aggregate([
+      {
+        $lookup: {
+          from: `${MODELS_NAME.STAFF}s`,
+          localField: 'staff_id',
+          foreignField: '_id',
+          as: 'staff'
+        }
+      },
+      {
+        $unwind: {
+          path: '$staff', preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $match: {
+          organization_id: org_id,
+          day: {
+            $gte: startOfDay(time),
+            $lt: endOfDay(time)
+          },
+          ...countFilter
+        }
+      },
+      {
+        $count: "totalDocument"
+      }
+    ])
+    console.log(count)
+
+    return {
+      totalPage: Math.ceil(count[0].totalDocument / limit),
+      page: Number(page),
+      totalItem: aggregate.length,
+      items: aggregate
+    }
+  }
+  catch (err) {
+    throw new Error.ThrowableError({ status: err.status, msg: err.message })
+  }
+
 }
 
 module.exports = mongoose.model(MODELS_NAME.DAYATTENDANCE, DayAttendance);

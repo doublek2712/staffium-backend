@@ -38,7 +38,7 @@ router.put('/:staff_id',
 router.delete('/:staff_id',
   authenticate.verifyUser,
   authenticate.requireRole(UserRoles.HR),
-  asyncHandler(StaffController.deleteStaffs)
+  asyncHandler(StaffController.deleteStaff)
 )
 router.delete('/',
   authenticate.verifyUser,
