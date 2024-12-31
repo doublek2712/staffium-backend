@@ -22,6 +22,10 @@ var User = new Schema({
     ref: MODELS_NAME.FILE,
     required: false
   },
+  display_name: {
+    type: String,
+    required: false
+  },
   roles: [{
     type: String,
     required: false

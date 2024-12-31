@@ -31,5 +31,9 @@ router.put('/avatar',
   upload.single('file'),
   asyncHandler(UserController.uploadAvatar)
 )
+router.put('/name',
+  authenticate.verifyUser,
+  asyncHandler(UserController.changeDisplayName)
+)
 
 module.exports = router;

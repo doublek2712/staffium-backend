@@ -71,6 +71,16 @@ const UserController = {
     }
   },
 
+  changeDisplayName: async (req, res, next) => {
+    try {
+      const user = await UserService.uploadDisplayNameById(req.user._id, req.body.name)
+      return Success.OkResponse(res, 'success', user)
+    }
+    catch (error) {
+      return next(error)
+    }
+  },
+
   uploadAvatar: async (req, res, next) => {
     try {
       if (!req.file.mimetype.startsWith('image'))

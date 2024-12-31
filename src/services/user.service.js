@@ -92,6 +92,16 @@ const UserService = {
       throw new Error.ThrowableError({ status: err.status, msg: err.message })
     }
   },
+  uploadDisplayNameById: async (id, name) => {
+    try {
+      await User.findByIdAndUpdate(id, {
+        $set: { display_name: name }
+      })
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
 
 }
 
