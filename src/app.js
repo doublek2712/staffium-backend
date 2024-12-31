@@ -8,7 +8,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const passport = require('passport')
 const session = require('express-session')
-const { Error } = require('./common/responses/index.js')
+const { Error } = require('./common/responses/index.js');
+const { StatusCodes } = require('./utils/httpStatusCode.js');
 
 
 
@@ -43,8 +44,7 @@ MongoDBInstance;
 
 // handle error
 app.use((req, res, next) => {
-  const error = new Error('Not found');
-  error.status = 404;
+  const error = new Error.ThrowableError({ status: StatusCodes.NOT_FOUND }, { msg: '' })
   next(error);
 })
 
