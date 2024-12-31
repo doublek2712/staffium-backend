@@ -8,6 +8,9 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const passport = require('passport')
 const session = require('express-session')
+const { Error } = require('./common/responses/index.js')
+
+
 
 const app = express();
 
@@ -46,12 +49,7 @@ app.use((req, res, next) => {
 })
 
 app.use((error, req, res, next) => {
-  const statusCode = error.status || 500;
-  return res.status(statusCode).json({
-    message: error.message,
-    stack: error.stack,
-    status: statusCode,
-  })
+  return Error.ThrowErrorHandler(res, error.status, error.message)
 })
 
 module.exports = app

@@ -17,6 +17,11 @@ var User = new Schema({
     ref: MODELS_NAME.STAFF,
     required: false
   },
+  avatar: {
+    type: Schema.Types.ObjectId,
+    ref: MODELS_NAME.FILE,
+    required: false
+  },
   roles: [{
     type: String,
     required: false
@@ -46,7 +51,13 @@ User.statics.setStaffId = async (user, staff) => {
   })
 }
 User.statics.getUserById = async (id) => {
-  return await mongoose.model(MODELS_NAME.USER).findById(id).populate('organization_id').lean()
+  return await mongoose.model(MODELS_NAME.USER).findById(id)
+    .populate('organization_id')
+}
+User.statics.getUserByIdFullData = async (id) => {
+  return await mongoose.model(MODELS_NAME.USER).findById(id)
+    .populate('organization_id')
+    .populate('avatar')
 }
 
 module.exports = mongoose.model(MODELS_NAME.USER, User);

@@ -17,6 +17,15 @@ const UserService = {
   getUserById: async (id) => {
     return await User.getUserById(id)
   },
+  getUserByIdFullData: async (id) => {
+    try {
+      const user = await User.getUserByIdFullData(id)
+      return user
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: StatusCodes.NOT_FOUND, msg: 'User not found.' })
+    }
+  },
   getOrganization: async (id) => {
     const user = await UserService.getUserById(id)
     if (user) {
@@ -67,6 +76,16 @@ const UserService = {
         else {
           user.changePassword(oldPassword, newPassword)
         }
+      })
+    }
+    catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
+  uploadAvatarById: async (id, file_id) => {
+    try {
+      await User.findByIdAndUpdate(id, {
+        $set: { avatar: file_id }
       })
     }
     catch (err) {

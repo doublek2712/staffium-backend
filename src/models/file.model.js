@@ -18,10 +18,6 @@ var File = new Schema({
     type: String,
     required: true
   },
-  name: {
-    type: String,
-    required: true
-  },
   content_type: {
     type: String,
     required: true
