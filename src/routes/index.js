@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.use('/api/auth', require('./auth.route'))
 router.use('/api/org', require('./organization.route'))
+router.use('/api/org-config', require('./org-config.route'))
 router.use('/api/user', require('./user.route'))
 router.use('/api/staff', require('./staff.route'))
 router.use('/api/dept', require('./department.route'))

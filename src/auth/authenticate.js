@@ -71,6 +71,7 @@ exports.verifyUser = (req, res, next) => {
       return Error.InternalServerErrorResponse(res, 'Authentication failed due to internal error.')
     }
     if (!user) {
+      console.log(info)
       return Error.UnauthorizedResponse(res, 'You are not authorized. Invalid token or user.')
     }
     req.user = user;
