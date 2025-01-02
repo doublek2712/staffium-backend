@@ -1,6 +1,7 @@
 'use strict';
 
 var Staff = require('../models/staff.model.js')
+var Department = require('../models/department.model.js')
 const { Error, Success } = require('../common/responses/index.js')
 const { StatusCodes } = require('../utils/httpStatusCode.js')
 const stringToArray = require('../helpers/stringToArray.js')
@@ -34,6 +35,9 @@ const StaffService = {
   updateOneStaffById: async (id, updateData) => {
     try {
       const updatedStaff = await Staff.setOneById(id, updateData)
+      if (updatedData.department) {
+        await Department.updateSize(updatedData.department)
+      }
       return updatedStaff
     } catch (err) {
       throw new Error.ThrowableError({ status: err.status, msg: err.message })
