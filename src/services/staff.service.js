@@ -35,8 +35,8 @@ const StaffService = {
   updateOneStaffById: async (id, updateData) => {
     try {
       const updatedStaff = await Staff.setOneById(id, updateData)
-      if (updatedData.department) {
-        await Department.updateSize(updatedData.department)
+      if (updateData.department) {
+        await Department.updateSize(updateData.department)
       }
       return updatedStaff
     } catch (err) {
