@@ -31,7 +31,7 @@ const OrganizationController = {
     }
     try {
       const staff = await StaffService.getOneStaffById(req.user.staff_id)
-      const newOrg = await OrganizationService.createAnOrganization(new CreateOrgDTO({ name: req.body.name, size: req.body.size }))
+      const newOrg = await OrganizationService.createAnOrganization(new CreateOrgDTO({ name: req.body.name, size: 0 }))
       await OrganizationConfigService.createOneOrgConfig(newOrg._id)
       await UserService.joinAnOrganization(req.user, newOrg._id)
       await StaffService.updateOrganization(staff, newOrg._id)

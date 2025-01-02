@@ -1,5 +1,7 @@
 
 var User = require('../models/user.model')
+var Department = require('../models/organization.model.js')
+var Staff = require('../models/staff.model.js')
 const { Error, Success } = require('../common/responses/index.js')
 var passport = require('passport')
 const { StatusCodes } = require('../utils/httpStatusCode.js')
@@ -53,6 +55,15 @@ const UserService = {
   joinAnOrganization: async (user, org_id) => {
     const updateUser = await User.joinAnOrganization(user, org_id)
     if (updateUser) {
+      const staffCount = await Staff.countDocuments({ organization_id: org_id });
+      await Department.findByIdAndUpdate(
+        org_id,
+        {
+          $set: {
+            size: staffCount
+          }
+        }
+      )
       return updateUser
     } else {
       throw new Error.ThrowableError({ status: StatusCodes.NOT_FOUND, msg: 'User not found.' })
