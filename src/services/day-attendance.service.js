@@ -40,6 +40,37 @@ const DayAttendanceService = {
     }
   },
 
+  getMyAttendanceByTime: async (user, time) => {
+    try {
+      const attendance = await DayAttendance.findOne({
+        organization_id: user.organization_id,
+        staff_id: user.staff_id,
+        day: {
+          $gte: startOfDay(time),
+          $lt: endOfDay(time)
+        },
+      })
+      return attendance
+    } catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
+
+  getAllAttendanceByTimeWithoutQuery: async (user, time) => {
+    try {
+      const attendances = await DayAttendance.find({
+        organization_id: user.organization_id,
+        day: {
+          $gte: startOfDay(time),
+          $lt: endOfDay(time)
+        },
+      })
+      return attendances
+    } catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
+
   getAllAttendanceByTime: async (user, time, query) => {
     try {
       const attendances = await DayAttendance.getAllByTimeAndQuery(user.organization_id, time, query)
@@ -48,6 +79,7 @@ const DayAttendanceService = {
       throw new Error.ThrowableError({ status: err.status, msg: err.message })
     }
   },
+
   getAllAttendanceByMonth: async (user, month, year) => {
     try {
       const attendances = await DayAttendance

@@ -82,6 +82,30 @@ const RequestService = {
       throw new Error.ThrowableError({ status: err.status, msg: err.message })
     }
   },
+  getAllRemainingRequest: async (user, query) => {
+    try {
+      const { page = 1, limit = 15, sort, filter } = query
+      const queryFilter = buildFilter(filter)
+      const querySort = buildSort(sort) || {
+        'details.day_off': 1
+      }
+      const requests = await Request.aggregate([
+        {
+          $match: {
+            organization_id: user.organization_id,
+            status: RequestStatus.PENDING,
+            ...queryFilter
+          }
+        },
+        { $skip: (Number(page) - 1) * Number(limit) },
+        { $limit: Number(limit) },
+        { $sort: querySort },
+      ])
+      return requests
+    } catch (err) {
+      throw new Error.ThrowableError({ status: err.status, msg: err.message })
+    }
+  },
 
   updateRequestStatusById: async (id, status) => {
     try {

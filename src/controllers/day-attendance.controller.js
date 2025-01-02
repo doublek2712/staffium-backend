@@ -40,6 +40,15 @@ const DayAttendanceController = {
       return Error.ThrowErrorHandler(res, error.status, error.message)
     }
   },
+  getMyAttendanceToday: async (req, res, next) => {
+    try {
+      const attendances = await DayAttendanceService.getMyAttendanceByTime(req.user, new Date())
+      return Success.OkResponse(res, undefined, attendances)
+    }
+    catch (error) {
+      return Error.ThrowErrorHandler(res, error.status, error.message)
+    }
+  },
   //
   getAllTodayAttendance: async (req, res, next) => {
     try {

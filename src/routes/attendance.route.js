@@ -26,5 +26,10 @@ router.get('/today',
   asyncHandler(DayAttendanceController.getAllTodayAttendance)
 )
 
+router.get('/my/today',
+  authenticate.verifyUser,
+  asyncHandler(DayAttendanceController.getMyAttendanceToday)
+)
+
 
 module.exports = router;

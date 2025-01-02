@@ -40,7 +40,16 @@ const OrganizationController = {
     catch (error) {
       return Error.ThrowErrorHandler(res, error.status, error.message)
     }
-  }
+  },
+  getOrganizationInfo: async (req, res, next) => {
+    try {
+      const org = await OrganizationService.getOrganizationInfo(req.user)
+      return Success.OkResponse(res, undefined, org)
+    }
+    catch (error) {
+      return next(error)
+    }
+  },
 
 }
 

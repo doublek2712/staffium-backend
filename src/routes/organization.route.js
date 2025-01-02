@@ -19,6 +19,10 @@ router.post('/',
   authenticate.requireRole(UserRoles.HR),
   asyncHandler(OrganizationController.createOrganization)
 )
+router.get('/info',
+  authenticate.verifyUser,
+  asyncHandler(OrganizationController.getOrganizationInfo)
+)
 
 
 module.exports = router;
